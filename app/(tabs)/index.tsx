@@ -1,75 +1,203 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
+  /* Default coins */
+  const [coins, setCoins] = useState(0);
+  
+  /* Default daily goal */
+  const [goalTime, setGoalTime] = useState('7:00');
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputTime, setInputTime] = useState(goalTime);
+
+  const isValidTime = (time: string) => {
+  const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
+  if (!timeRegex.test(time)) return false;
+
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours >= 4; //Time must be at least 4 hours.
+  };
+
+  /* weekly sleep tracker */
+  /* monthly sleep tracker */
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      {/* MonSleep header */}
+      <Image
+        source={require('@/assets/images/monsleep.png')}
+        style={styles.monsleepIcon}
+      />
+      
+      {/* My coins */}
+      <View style={styles.coinsContainer}>
+        <ThemedText type="subtitle" style={styles.coinsText}>
+          💰 My coins: {coins}
         </ThemedText>
+      </View>
+
+      {/* Daily goal */}
+      <ThemedView style={styles.card}>
+        <View style={styles.goalHeader}>
+          <ThemedText type="title">Daily goal</ThemedText>
+          <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
+            <Ionicons name="pencil" size={20} color="black" />
+          </TouchableOpacity>
+        </View>
+
+      <ThemedView style={styles.goalBox}>
+        {isEditing ? (
+          <View style={{ alignItems: 'center' }}>
+            <TextInput
+              style={[styles.goalTime, { color: 'white', textAlign: 'center' }]}
+              value={inputTime}
+              onChangeText={setInputTime}
+              keyboardType="numeric"
+              maxLength={5}
+              placeholder="0:00"
+              inputMode="numeric"
+            />
+            <TouchableOpacity
+              onPress={() => {
+                if (isValidTime(inputTime)) {
+                  setGoalTime(inputTime);
+                  setIsEditing(false);
+                } else {
+                  alert('Invalid time. Must be in HH:MM format and ≥ 4:00');
+                }
+              }}
+              style={{ marginTop: 10 }}
+            >
+              <ThemedText type="defaultSemiBold" style={{ color: '#fff', fontSize: 25,}}>
+                Save
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <ThemedText type="title" style={styles.goalTime}>{goalTime}</ThemedText>
+        )}
+        </ThemedView>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
+
+      {/* Sleep tracker */}
+      <ThemedView style={styles.card}>
+        <ThemedText type="title">Sleep tracker</ThemedText>
+        <ThemedText type="default" style={{color: '#696969'}}>coming soon...</ThemedText>
+        {/* <ThemedView style={styles.trackerRow}>
+          <Image
+            source={require('@/assets/images/chart.png')}
+            style={styles.chart}
+          />
+          <ThemedText type="subtitle" style={styles.week}>This week</ThemedText>
+          <Image
+            source={require('@/assets/images/calendar.png')}
+            style={styles.calendar}
+          />
+          <ThemedText type="subtitle" style={styles.month}>This month</ThemedText>
+        </ThemedView> */}
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+
+      {/* My Mons */}
+      <ThemedView style={styles.card}>
+        <ThemedView style={styles.monsHeader}>
+          <ThemedText type="title">My Mons</ThemedText>
+          <ThemedText type="title">→</ThemedText>
+        </ThemedView>
+        <ThemedView style={styles.monsRow}>
+          <ThemedText>🥚 Hatching in progress...</ThemedText>
+          <ThemedText>🧡 🐷 🧊</ThemedText>
+        </ThemedView>
       </ThemedView>
-    </ParallaxScrollView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+   scrollContainer: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#E8F0FF',
+  },
+  monsleepIcon: {
+    height: 80,
+    width: 300,
+    bottom: -25,
+    alignSelf: 'center',
+    marginTop: 15,
+  },
+  coinsContainer: {
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 5,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  coinsText: {
+    fontSize: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  card: {
+    marginVertical: 10,
+    padding: 19,
+    borderRadius: 16,
+    backgroundColor: '#fff7eb',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  goalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  goalBox: {
+    backgroundColor: '#A1B2D0',
+    borderRadius: 12,
+    paddingVertical: 30,  
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  goalTime: {
+    fontSize: 50,
+    lineHeight: 50, 
+    bottom: -5,
+    color: 'white',
+    fontWeight: 'bold',
+    fontFamily: 'BryndanWrite',
+  },
+  trackerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 12,
+  },
+  chart: {
+    width: 130,
+    height: 150,
+  },
+  week: {
+    left: -100,
+    top: 120,
+  },
+  calendar: {
+    width: 160,
+    height: 150,
+    left: -30,
+  },
+  month: {
+    left: -160,
+    top: 120,
+  },
+  monsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  monsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
   },
 });
