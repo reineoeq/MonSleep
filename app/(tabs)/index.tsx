@@ -109,7 +109,7 @@ export default function HomeScreen() {
         </ThemedView>
         <ThemedView style={styles.monsRow}>
           <ThemedText>🥚 Hatching in progress...</ThemedText>
-          <ThemedText>🧡 🐷 🧊</ThemedText>
+          <ThemedText>encyclopedia placeholder</ThemedText>
         </ThemedView>
       </ThemedView>
     </ScrollView>
