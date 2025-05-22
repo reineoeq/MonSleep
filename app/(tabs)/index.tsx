@@ -2,8 +2,9 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
   /* Default coins */
@@ -24,6 +25,8 @@ export default function HomeScreen() {
 
   /* weekly sleep tracker */
   /* monthly sleep tracker */
+  /* egg timer */
+  const router = useRouter();
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -87,7 +90,7 @@ export default function HomeScreen() {
       <ThemedView style={styles.card}>
         <ThemedText type="title">Sleep tracker</ThemedText>
         <ThemedText type="default" style={{color: '#696969'}}>coming soon...</ThemedText>
-        {/* <ThemedView style={styles.trackerRow}>
+        <ThemedView style={styles.trackerRow}>
           <Image
             source={require('@/assets/images/chart.png')}
             style={styles.chart}
@@ -98,7 +101,7 @@ export default function HomeScreen() {
             style={styles.calendar}
           />
           <ThemedText type="subtitle" style={styles.month}>This month</ThemedText>
-        </ThemedView> */}
+        </ThemedView>
       </ThemedView>
 
       {/* My Mons */}
@@ -107,10 +110,26 @@ export default function HomeScreen() {
           <ThemedText type="title">My Mons</ThemedText>
           <ThemedText type="title">→</ThemedText>
         </ThemedView>
-        <ThemedView style={styles.monsRow}>
-          <ThemedText>🥚 Hatching in progress...</ThemedText>
-          <ThemedText>encyclopedia placeholder</ThemedText>
+        <ThemedView style={styles.trackerRow}>
+          <Pressable onPress={() => router.push('/egg-timer')}>
+          <Image
+            source={require('@/assets/images/tripole-egg-stage-1.gif')} 
+            style={styles.eggGif}
+          />
+          </Pressable>
+          <ThemedText style={styles.monEggText} type="default">Hatching in Progress...</ThemedText>
+          <Pressable onPress={() => router.push('/moncyclopedia')}>
+          <Image
+            source={require('@/assets/images/moncyclopedia.png')} 
+            style={styles.monBook}
+          />
+          </Pressable>
+          <ThemedText style={styles.monBookText} type="default">Moncyclopedia</ThemedText>
         </ThemedView>
+        {/* <ThemedView style={styles.monsRow}>
+          <ThemedText style={styles.monText} type="subtitle">Hatching in Progress...</ThemedText>
+          <ThemedText style={styles.monText} type="subtitle">Moncyclopedia</ThemedText>
+        </ThemedView> */}
       </ThemedView>
     </ScrollView>
   );
@@ -200,4 +219,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 12,
   },
+  eggGif: {
+    height: 200,
+    width: 100,
+    top: -60,
+    left: 20,
+  },
+  monBook: {
+    height: 150,
+    width: 100,
+    top: -20,
+    left: -35,
+  },
+  monEggText: {
+    top: 110,
+    left: -100,
+  },
+  monBookText: {
+    top: 110,
+    left: -135,
+  }
 });
