@@ -250,7 +250,7 @@ export default function HomeScreen() {
         <ThemedView style={styles.trackerRow}>
           <Pressable onPress={() => router.push('/egg-timer')}>
           <Image
-            source={require('@/assets/images/tripole-egg-stage-1.gif')} 
+            source={require('@/assets/images/eggs/tripole-egg-stage-1.gif')} 
             style={styles.eggGif}
           />
           </Pressable>

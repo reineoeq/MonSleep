@@ -19,7 +19,7 @@ export default function EggTimerScreen() {
   const [running, setRunning] = useState(false);
   const [eggHatched, setEggHatched] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [dailyGoalSeconds, setDailyGoalSeconds] = useState(0); // Initialize with 0
+  const [dailyGoalSeconds, setDailyGoalSeconds] = useState(0); 
   const [secondsLeft, setSecondsLeft] = useState(10);//testing w 10
   
 
@@ -69,10 +69,8 @@ export default function EggTimerScreen() {
     const coinsEarned = 10;
     
     // try {
-    //   // Update backend
     //   await addCoins(userId, coinsEarned);
       
-    //   // Add to collected Mons
     //   await addCollectedMon({
     //     userId,
     //     monId: 'tripole-mon-id',
@@ -80,7 +78,7 @@ export default function EggTimerScreen() {
     //     hatchDuration: dailyGoalSeconds - secondsLeft,
     //   });
 
-      // Update local state
+      // update local 
       setCoins(coins + coinsEarned);
       
       Alert.alert(
@@ -108,11 +106,11 @@ export default function EggTimerScreen() {
 
   function chooseEggImage(progress: number): ImageSourcePropType {
     if (progress < 0.33) {
-      return require('../assets/images/tripole-egg-stage-1.gif');
+      return require('../assets/images/eggs/tripole-egg-stage-1.gif');
     } else if (progress < 0.66) {
-      return require('../assets/images/tripole-egg-stage-2.gif');
+      return require('../assets/images/eggs/tripole-egg-stage-2.gif');
     } else if (progress < 0.999) {
-      return require('../assets/images/tripole-egg-stage-3.gif');
+      return require('../assets/images/eggs/tripole-egg-stage-3.gif');
     } else {
       return require('../assets/images/tripole.png');
     }

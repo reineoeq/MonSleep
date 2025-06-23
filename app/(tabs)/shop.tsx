@@ -26,28 +26,28 @@ export default function MonShop() {
           id: `egg-1-${today}`,
           name: 'Common Egg',
           price: 20,
-          image: require('@/assets/images/tripole-egg-stage-1.gif'), //egg 1
+          image: require('@/assets/images/eggs/tripole-egg-stage-1.gif'), //egg 1
           available: true
         },
         {
           id: `egg-2-${today}`,
           name: 'Rare Egg',
           price: 50,
-          image: require('@/assets/images/tripole-egg-stage-1.gif'), // egg2
+          image: require('@/assets/images/eggs/blople-egg-stage-1.gif'), // egg2
           available: true
         },
         {
           id: `egg-3-${today}`,
           name: 'Legendary Egg',
           price: 100,
-          image: require('@/assets/images/tripole-egg-stage-1.gif'), // egg 3
+          image: require('@/assets/images/eggs/orangeer-egg-stage-1.gif'), // egg 3
           available: true
         },
         {
           id: `egg-4-${today}`,
           name: 'Mythical Egg',
           price: 200,
-          image: require('@/assets/images/tripole-egg-stage-1.gif'), // egg 4
+          image: require('@/assets/images/eggs/pinkhorn-egg-stage-1.gif'), // egg 4
           available: true
         }
       ];
