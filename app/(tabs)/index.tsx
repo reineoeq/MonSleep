@@ -1,16 +1,100 @@
+import { useCoinContext } from '@/app/CoinContext';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
+  
   /* Default coins */
-  const [coins, setCoins] = useState(0);
+  const { coins, setCoins } = useCoinContext();
   
   /* Default daily goal */
+  // Daily goal state
+  // const [goalTime, setGoalTime] = useState('7:00');
+  // const [isEditing, setIsEditing] = useState(false);
+  // const [selectedHours, setSelectedHours] = useState('7');
+  // const [selectedMinutes, setSelectedMinutes] = useState('00');
+  // const [initialLoad, setInitialLoad] = useState(true);
+
+  // // Available time options
+  // const hours = Array.from({length: 20}, (_, i) => i + 4); // 4-23 hours
+  // const minutes = ['00', '15', '30', '45'];
+
+  // // Load user data on mount
+  // useEffect(() => {
+  //   const loadUserData = async () => {
+  //     try {
+  //       const userId = auth.currentUser?.uid;
+  //       if (userId) {
+  //         const user = await getUserData(userId);
+  //         if (user) {
+  //           // Convert seconds to HH:MM format
+  //           const hours = Math.floor(user.dailyGoal / 3600);
+  //           const minutes = Math.floor((user.dailyGoal % 3600) / 60);
+  //           const formattedTime = `${hours}:${minutes.toString().padStart(2, '0')}`;
+            
+  //           setGoalTime(formattedTime);
+  //           setSelectedHours(hours.toString());
+  //           setSelectedMinutes(minutes.toString().padStart(2, '0'));
+  //           setCoins(user.coins);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error('Error loading user data:', error);
+  //       Alert.alert('Error', 'Failed to load your data');
+  //     } finally {
+  //       setInitialLoad(false);
+  //     }
+  //   };
+
+  //   loadUserData();
+  // }, []);
+
+  // const isValidTime = (time: string) => {
+  //   const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
+  //   if (!timeRegex.test(time)) return false;
+  //   const [hours] = time.split(':').map(Number);
+  //   return hours >= 4;
+  // };
+
+  // const handleSave = async () => {
+  //   const newTime = `${selectedHours}:${selectedMinutes}`;
+    
+  //   if (isValidTime(newTime)) {
+  //     try {
+  //       const userId = auth.currentUser?.uid;
+  //       if (userId) {
+  //         // Convert to seconds
+  //         const hours = parseInt(selectedHours);
+  //         const mins = parseInt(selectedMinutes);
+  //         const totalSeconds = (hours * 3600) + (mins * 60);
+          
+  //         await updateDailyGoal(userId, totalSeconds);
+  //         setGoalTime(newTime);
+  //         setIsEditing(false);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error saving daily goal:', error);
+  //       Alert.alert('Error', 'Failed to save your goal');
+  //     }
+  //   } else {
+  //     Alert.alert('Invalid Time', 'Please enter a valid time (HH:MM format, minimum 4 hours)');
+  //   }
+  // };
+
+  // if (initialLoad) {
+  //   return (
+  //     <ThemedView style={styles.loadingContainer}>
+  //       <ThemedText>Loading your data...</ThemedText>
+  //     </ThemedView>
+  //   );
+  // }
+
   const [goalTime, setGoalTime] = useState('7:00');
   const [isEditing, setIsEditing] = useState(false);
   const [inputTime, setInputTime] = useState(goalTime);
@@ -22,6 +106,41 @@ export default function HomeScreen() {
   const [hours, minutes] = time.split(':').map(Number);
   return hours >= 4; //Time must be at least 4 hours.
   };
+
+  const hours = Array.from({length: 20}, (_, i) => i + 4); // 4-23 hours
+  const minutes = ['00', '15', '30', '45'];
+  
+  const [selectedHours, setSelectedHours] = useState('7');
+  const [selectedMinutes, setSelectedMinutes] = useState('00');
+
+  const handleSave = () => {
+    const newTime = `${selectedHours}:${selectedMinutes}`;
+    setGoalTime(newTime);
+    setIsEditing(false);
+  };
+  // const handleSave = async () => {
+  //   const newTime = `${selectedHours}:${selectedMinutes}`;
+    
+  //   if (isValidTime(newTime)) {
+  //     try {
+  //       const userId = auth.currentUser?.uid;
+  //       if (userId) {
+  //         const hours = parseInt(selectedHours);
+  //         const mins = parseInt(selectedMinutes);
+  //         const totalSeconds = (hours * 3600) + (mins * 60);
+          
+  //         await updateDailyGoal(userId, totalSeconds);
+  //         setGoalTime(newTime);
+  //         setIsEditing(false);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error saving daily goal:', error);
+  //       Alert.alert('Error', 'Failed to save your goal');
+  //     }
+  //   } else {
+  //     Alert.alert('Invalid Time', 'Please enter a valid time (HH:MM format, minimum 4 hours)');
+  //   }
+  // };
 
   /* weekly sleep tracker */
   /* monthly sleep tracker */
@@ -52,37 +171,55 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-      <ThemedView style={styles.goalBox}>
-        {isEditing ? (
-          <View style={{ alignItems: 'center' }}>
-            <TextInput
-              style={[styles.goalTime, { color: 'white', textAlign: 'center' }]}
-              value={inputTime}
-              onChangeText={setInputTime}
-              keyboardType="numeric"
-              maxLength={5}
-              placeholder="0:00"
-              inputMode="numeric"
-            />
-            <TouchableOpacity
-              onPress={() => {
-                if (isValidTime(inputTime)) {
-                  setGoalTime(inputTime);
-                  setIsEditing(false);
-                } else {
-                  alert('Invalid time. Must be in HH:MM format and ≥ 4:00');
-                }
-              }}
-              style={{ marginTop: 10 }}
-            >
-              <ThemedText type="defaultSemiBold" style={{ color: '#fff', fontSize: 25,}}>
-                Save
-              </ThemedText>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <ThemedText type="title" style={styles.goalTime}>{goalTime}</ThemedText>
-        )}
+        <ThemedView style={styles.goalBox}>
+          {isEditing ? (
+            <View style={{ alignItems: 'center', width: '100%' }}>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={selectedHours}
+                  onValueChange={(itemValue) => setSelectedHours(itemValue)}
+                  style={styles.picker}
+                  itemStyle={styles.pickerItem}
+                >
+                  {hours.map(hour => (
+                    <Picker.Item 
+                      key={`hour-${hour}`} 
+                      label={hour.toString()} 
+                      value={hour.toString()} 
+                    />
+                  ))}
+                </Picker>
+                
+                <ThemedText type="title" style={styles.timeSeparator}>:</ThemedText>
+                
+                <Picker
+                  selectedValue={selectedMinutes}
+                  onValueChange={(itemValue) => setSelectedMinutes(itemValue)}
+                  style={styles.picker}
+                  itemStyle={styles.pickerItem}
+                >
+                  {minutes.map(minute => (
+                    <Picker.Item 
+                      key={`minute-${minute}`} 
+                      label={minute} 
+                      value={minute} 
+                    />
+                  ))}
+                </Picker>
+              </View>
+              
+              <TouchableOpacity
+                onPress={handleSave}
+                style={{ marginTop: 10 }}
+              >
+                <ThemedText type="defaultSemiBold" style={{ color: '#fff', fontSize: 25 }}>
+                  Save
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <ThemedText type="title" style={styles.goalTime}>{goalTime}</ThemedText>
+          )}
         </ThemedView>
       </ThemedView>
 
@@ -141,6 +278,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: '#E8F0FF',
   },
+   loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   monsleepIcon: {
     height: 80,
     width: 300,
@@ -150,10 +292,12 @@ const styles = StyleSheet.create({
   },
   coinsContainer: {
     alignItems: 'center',
+    marginTop: 5,
     marginBottom: 5,
   },
   coinsText: {
     fontSize: 16,
+    lineHeight: 20,
   },
   card: {
     marginVertical: 10,
@@ -186,6 +330,26 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontFamily: 'BryndanWrite',
+  },
+  pickerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  picker: {
+    width: 100,
+    height: 150,
+    color: 'white',
+  },
+  pickerItem: {
+    color: 'white',
+    fontSize: 24,
+  },
+  timeSeparator: {
+    color: 'white',
+    fontSize: 40,
+    marginHorizontal: 5,
   },
   trackerRow: {
     flexDirection: 'row',

@@ -9,14 +9,16 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.mymonsleepapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/monsleep-app-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.mymonsleepapp"
     },
     "web": {
       "bundler": "metro",
