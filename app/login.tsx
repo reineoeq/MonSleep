@@ -1,22 +1,26 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { auth } from '@/config/firebase';
 import { Stack, useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { auth } from '../config/firebase';
+
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('test@example.com'); // Pre-filled for testing
-  const [password, setPassword] = useState('password123'); // Pre-filled for testing
+  const [email, setEmail] = useState('test@example.com'); // test
+  const [password, setPassword] = useState('password123'); // test
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  
   const handleLogin = async () => {
     setLoading(true);
     try {
+      if (!auth) {
+        throw new Error("Authentication service is not available");
+      }
       await signInWithEmailAndPassword(auth, email, password);
-      // Success - router will automatically redirect to home
+      router.push('/(tabs)'); 
     } catch (error: any) {
       Alert.alert('Login Failed', error.message);
     } finally {

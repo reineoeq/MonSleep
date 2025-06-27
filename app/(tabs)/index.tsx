@@ -142,9 +142,6 @@ export default function HomeScreen() {
   //   }
   // };
 
-  /* weekly sleep tracker */
-  /* monthly sleep tracker */
-  /* egg timer */
   const router = useRouter();
 
   return (
@@ -226,17 +223,20 @@ export default function HomeScreen() {
       {/* Sleep tracker */}
       <ThemedView style={styles.card}>
         <ThemedText type="title">Sleep tracker</ThemedText>
-        <ThemedText type="default" style={{color: '#696969'}}>coming soon...</ThemedText>
         <ThemedView style={styles.trackerRow}>
+          <Pressable onPress={() => router.push('/weekly-sleep-tracker')} >
           <Image
             source={require('@/assets/images/chart.png')}
             style={styles.chart}
           />
+          </Pressable>
           <ThemedText type="subtitle" style={styles.week}>This week</ThemedText>
+          <Pressable onPress={() => router.push('/monthly-sleep-tracker')} >
           <Image
             source={require('@/assets/images/calendar.png')}
             style={styles.calendar}
           />
+          </Pressable>
           <ThemedText type="subtitle" style={styles.month}>This month</ThemedText>
         </ThemedView>
       </ThemedView>

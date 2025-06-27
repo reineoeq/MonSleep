@@ -15,7 +15,7 @@ type ShopItem = {
 
 export default function MonShop() {
   const router = useRouter();
-  const [coins, setCoins] = useState(0); 
+  const [coins, setCoins] = useState(50); 
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
 
   useEffect(() => {
