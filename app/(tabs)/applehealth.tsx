@@ -1,9 +1,9 @@
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import SleepData from '@/ios/SleepData';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
-import SleepData from '@/ios/SleepData';
 
 export default function AppleHealthScreen() {
   return (
@@ -24,7 +24,7 @@ export default function AppleHealthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E8F0FF', // Matching your home screen background
+    backgroundColor: '#E8F0FF', 
   },
   header: {
     paddingHorizontal: 20,
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-    fontFamily: 'BryndanWrite', // Using your app's font
+    fontFamily: 'BryndanWrite',
   },
   content: {
     flex: 1,
