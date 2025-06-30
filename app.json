@@ -35,6 +35,12 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      "expo-web-browser"
+      ["expo-health",
+        {
+          "healthSharePermission": "This app needs access to your sleep data to track your sleep patterns."
+        }
       ]
     ],
     "experiments": {
