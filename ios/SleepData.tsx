@@ -1,125 +1,191 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import React, { useState } from 'react';
-import { Alert, Button, ScrollView, StyleSheet, View } from 'react-native';
-//import { Health } from '@/utils/mockHealth';
+import { Alert, Button, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
+
+/* Permission options */
+const permissions = {
+  permissions: {
+    read: [AppleHealthKit.Constants.Permissions.SleepAnalysis],
+    write: [],
+  },
+} as HealthKitPermissions;
 
 const SleepData = () => {
-  const [sleepData, setSleepData] = useState([]);
+  interface SleepSession {
+    start: string;
+    end: string;
+    duration: number;
+  }
+  
+  interface ProcessedSleepData {
+    date: string;
+    asleepTime: number;  
+    sleepSessions: {
+      start: string;
+      end: string;
+      duration: number;
+    }[];
+  }
+  
+  const [sleepData, setSleepData] = useState<ProcessedSleepData[]>([]);
   const [totalSleepHours, setTotalSleepHours] = useState(0);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const requestSleepPermission = async () => {
+    if (Platform.OS !== 'ios') {
+      Alert.alert('Platform not supported', 'Apple Health is only available on iOS devices');
+      return;
+    }
+
     try {
       setLoading(true);
       
-      const isAvailable = await Health.isAvailableAsync();
-      if (!isAvailable) {
-        Alert.alert('Health not available', 'Apple Health is not available on this device');
-        return;
-      }
+      // Check if HealthKit is available (iOS only)
+      AppleHealthKit.isAvailable((err, available) => {
+        if (err) {
+          Alert.alert('Error', 'Error checking Health availability: ' + err);
+          setLoading(false);
+          return;
+        }
 
-      const granted = await Health.requestPermissionsAsync([
-        Health.HealthDataTypes.SLEEP_ANALYSIS
-      ]);
-      
-      if (granted) {
-        setIsAuthorized(true);
-        fetchSleepData();
-      } else {
-        Alert.alert('Permission denied', 'Sleep data access was denied');
-      }
+        if (!available) {
+          Alert.alert('Health not available', 'Apple Health is not available on this device');
+          setLoading(false);
+          return;
+        }
+        
+        // Request permissions
+        AppleHealthKit.initHealthKit(permissions, (error) => {
+          if (error) {
+            Alert.alert('Permission denied', 'Sleep data access was denied: ' + error);
+            console.log('Error initializing HealthKit: ', error);
+          } else {
+            console.log('HealthKit initialized successfully');
+            setIsAuthorized(true);
+            fetchSleepData();
+          }
+          setLoading(false);
+        });
+      });
     } catch (error) {
-      Alert.alert('Error', 'Failed to request sleep permission: ' + error.message);
-    } finally {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Error', 'Failed to request sleep permission: ' + message);
       setLoading(false);
     }
   };
 
-  const fetchSleepData = async () => {
+  const fetchSleepData = () => {
     try {
       setLoading(true);
       const now = new Date();
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-      const sleepAnalysis = await Health.getHealthDataAsync(
-        Health.HealthDataTypes.SLEEP_ANALYSIS,
-        {
-          startDate: weekAgo,
-          endDate: now,
-        }
-      );
+      // Get sleep data
+      const options = {
+        startDate: weekAgo.toISOString(),
+        endDate: now.toISOString(),
+      };
 
-      const processedSleep = processSleepData(sleepAnalysis);
-      setSleepData(processedSleep);
-      
-      const lastNightSleep = calculateLastNightSleep(sleepAnalysis);
-      setTotalSleepHours(lastNightSleep);
+      AppleHealthKit.getSleepSamples(options, (err: string, results: HealthValue[]) => {
+        setLoading(false);
+        
+        if (err) {
+          Alert.alert('Error', 'Failed to fetch sleep data: ' + err);
+          console.log('Sleep data error:', err);
+          return;
+        }
+        
+        console.log('Sleep data received:', results?.length || 0, 'samples');
+        
+        if (!results || results.length === 0) {
+          setSleepData([]);
+          setTotalSleepHours(0);
+          return;
+        }
+
+        // Process and set sleep data
+        const processedSleep = processSleepData(results);
+        setSleepData(processedSleep);
+        
+        const lastNightSleep = calculateLastNightSleep(results);
+        setTotalSleepHours(lastNightSleep);
+      });
 
     } catch (error) {
-      Alert.alert('Error', 'Failed to fetch sleep data: ' + error.message);
-    } finally {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Error', 'Failed to fetch sleep data: ' + errorMessage);
       setLoading(false);
     }
   };
 
-  const processSleepData = (rawSleepData) => {
+  const processSleepData = (rawSleepData: HealthValue[]): ProcessedSleepData[] => {
     if (!rawSleepData || rawSleepData.length === 0) return [];
-
-    const sleepByDate = {};
-    
+  
+    const sleepByDate: Record<string, ProcessedSleepData> = {};
+      
     rawSleepData.forEach(entry => {
       const date = new Date(entry.startDate).toDateString();
       
       if (!sleepByDate[date]) {
         sleepByDate[date] = {
-          date: date,
-          asleepTime: 0,
-          sleepSessions: []
+          date: date,          // Required date property
+          asleepTime: 0,       // Only tracking asleep time
+          sleepSessions: []    // Sessions array
         };
       }
       
       const startTime = new Date(entry.startDate);
       const endTime = new Date(entry.endDate);
-      const duration = (endTime - startTime) / (1000 * 60);
+      const duration = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
       
-      if (entry.value === 'asleep') {
-        sleepByDate[date].asleepTime += duration;
-      }
+      sleepByDate[date].asleepTime += duration;
       
       sleepByDate[date].sleepSessions.push({
-        type: entry.value,
-        start: startTime.toLocaleTimeString(),
-        end: endTime.toLocaleTimeString(),
+        start: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        end: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         duration: Math.round(duration)
       });
     });
-
+  
     return Object.values(sleepByDate)
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 7);
   };
-
-  const calculateLastNightSleep = (sleepData) => {
+  
+  const calculateLastNightSleep = (sleepData: HealthValue[]) => {
     if (!sleepData || sleepData.length === 0) return 0;
     
-    const yesterday = new Date();
+    const now = new Date();
+    const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toDateString();
     
+    // Look for sleep data from last night 
     const lastNightSleep = sleepData.filter(entry => {
-      const entryDate = new Date(entry.startDate).toDateString();
-      return entryDate === yesterdayStr && entry.value === 'asleep';
+      const entryStart = new Date(entry.startDate);
+      const entryEnd = new Date(entry.endDate);
+      
+      // Check if sleep session overlaps with last night
+      const isRecentSleep = (entryStart >= new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)) &&
+                           (entryEnd <= now);
+      
+      return isRecentSleep && entry.metadata?.value === 'Asleep';
     });
     
-    const totalMinutes = lastNightSleep.reduce((total, entry) => {
-      const start = new Date(entry.startDate);
-      const end = new Date(entry.endDate);
-      return total + ((end - start) / (1000 * 60));
-    }, 0);
+    // Get the most recent sleep session
+    if (lastNightSleep.length === 0) return 0;
     
-    return (totalMinutes / 60).toFixed(1);
+    const mostRecentSleep = lastNightSleep.sort((a, b) => 
+      new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+    )[0];
+    
+    const start = new Date(mostRecentSleep.startDate);
+    const end = new Date(mostRecentSleep.endDate);
+    const totalMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+    
+    return parseFloat((totalMinutes / 60).toFixed(1));
   };
 
   return (
@@ -152,7 +218,12 @@ const SleepData = () => {
           <ThemedText type="title" style={styles.sectionTitle}>Sleep History (Last 7 Days)</ThemedText>
           
           {sleepData.length === 0 ? (
-            <ThemedText style={styles.noData}>No sleep data found</ThemedText>
+            <ThemedView style={styles.noDataContainer}>
+              <ThemedText style={styles.noData}>No sleep data found</ThemedText>
+              <ThemedText style={styles.noDataHint}>
+                Make sure you have sleep data in Apple Health and try refreshing
+              </ThemedText>
+            </ThemedView>
           ) : (
             sleepData.map((day, index) => (
               <ThemedView key={index} style={styles.sleepCard}>
@@ -163,16 +234,16 @@ const SleepData = () => {
                     <ThemedText type="title" style={styles.statValue}>
                       {(day.asleepTime / 60).toFixed(1)}h
                     </ThemedText>
-                    <ThemedText style={styles.statLabel}>Asleep</ThemedText>
+                    <ThemedText style={styles.statLabel}>Total Sleep</ThemedText>
                   </View>
                 </View>
-                
+
                 {day.sleepSessions.length > 0 && (
                   <ThemedView style={styles.sessionsContainer}>
                     <ThemedText type="defaultSemiBold" style={styles.sessionsTitle}>Sleep Sessions:</ThemedText>
                     {day.sleepSessions.map((session, idx) => (
                       <ThemedText key={idx} style={styles.sessionText}>
-                        {session.type}: {session.start} - {session.end} ({session.duration}min)
+                        {session.start} - {session.end} ({session.duration}min)
                       </ThemedText>
                     ))}
                   </ThemedView>
@@ -289,14 +360,23 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 2,
   },
+  noDataContainer: {
+    alignItems: 'center',
+    padding: 20,
+  },
   noData: {
     textAlign: 'center',
     color: '#666',
     fontSize: 16,
-    marginTop: 20,
+    marginBottom: 10,
+  },
+  noDataHint: {
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 14,
+    fontStyle: 'italic',
   },
 });
 
 export default SleepData;
-
 // okay this kind of does not really work but it's a work in progress
