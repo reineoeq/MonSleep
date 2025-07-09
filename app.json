@@ -9,16 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.mymonsleepapp"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/monsleep-app-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.mymonsleepapp"
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
@@ -34,12 +32,6 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
-        }
-      ],
-      "expo-web-browser"
-      ["expo-health",
-        {
-          "healthSharePermission": "This app needs access to your sleep data to track your sleep patterns."
         }
       ]
     ],
