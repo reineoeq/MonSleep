@@ -1,34 +1,15 @@
 import { useCoinContext } from '@/app/CoinContext';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import eggDefinitions from '@/constants/eggDefinitions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-
-// Simulate inventory eggs
-// const inventoryEggs = [
-//   {
-//     id: 'tripole',
-//     name: 'Tripole Egg',
-//     stage1: require('@/assets/images/eggs/tripole-egg-stage-1.gif'),
-//     stage2: require('@/assets/images/eggs/tripole-egg-stage-2.gif'),
-//     stage3: require('@/assets/images/eggs/tripole-egg-stage-3.gif'),
-//     hatched: require('@/assets/images/tripole.png'),
-//   },
-//   {
-//     id: 'orangeer',
-//     name: 'Orangeer Egg',
-//     stage1: require('@/assets/images/eggs/orangeer-egg-stage-1.gif'),
-//     stage2: require('@/assets/images/eggs/orangeer-egg-stage-2.gif'),
-//     stage3: require('@/assets/images/eggs/orangeer-egg-stage-3.gif'),
-//     hatched: require('@/assets/images/orangeer.png'),
-//   },
-// ];
+import { Alert, Image, ImageSourcePropType, Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function EggTimerScreen() {
   const router = useRouter();
-  const { coins, addCoins } = useCoinContext();
+  const { coins, addCoins, refreshCoins } = useCoinContext();
 
   const [running, setRunning] = useState(false);
   const [eggHatched, setEggHatched] = useState(false);
@@ -38,6 +19,8 @@ export default function EggTimerScreen() {
   const [selectedEgg, setSelectedEgg] = useState<any | null>(null);
   const [eggPickerVisible, setEggPickerVisible] = useState(false);
   const [unlockedMons, setUnlockedMons] = useState<string[]>([]);
+  const [hatchedEgg, setHatchedEgg] = useState<Egg | null>(null);
+
 
   useEffect(() => {
     const loadGoal = async () => {
@@ -65,6 +48,12 @@ export default function EggTimerScreen() {
     loadGoal();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshCoins();
+    }, [refreshCoins])
+  );
+
   useEffect(() => {
     if (running && secondsLeft > 0) {
       const timer = setInterval(() => {
@@ -82,17 +71,66 @@ export default function EggTimerScreen() {
     }
   }, [running, secondsLeft]);
 
+  type EggDefinition = {
+    id: string;
+    name: string;
+    stage1: ImageSourcePropType;
+    stage2: ImageSourcePropType;
+    stage3: ImageSourcePropType;
+    hatched: ImageSourcePropType;
+  }
+
+  type StoredEgg = {
+    id: string;
+    name?: string;
+  };
+
+  type Egg = StoredEgg & EggDefinition;
+
   useEffect(() => {
     const loadInventory = async () => {
       const stored = await AsyncStorage.getItem('inventory');
       const parsed = stored ? JSON.parse(stored) : [];
-      setInventoryEggs(parsed);
-      if (parsed.length > 0) {
-        setSelectedEgg(parsed[0]);
-      } else {
-        setSelectedEgg(null); 
+
+      const validEggs = (parsed as StoredEgg[]).map((egg: StoredEgg) => {
+        if (!egg.id || typeof egg.id !== 'string') return null;
+
+        let definition = eggDefinitions[egg.id as keyof typeof eggDefinitions];
+        
+        if (!definition && egg.id.endsWith('-egg')) {
+          const baseId = egg.id.replace('-egg', '');
+          definition = eggDefinitions[baseId as keyof typeof eggDefinitions];
+        }
+        
+        if (!definition && !egg.id.endsWith('-egg')) {
+          const withSuffix = `${egg.id}-egg`;
+          definition = eggDefinitions[withSuffix as keyof typeof eggDefinitions];
+        }
+
+        if (!definition) {
+          console.warn(`⚠️ Missing egg definition for id: ${egg.id}`);
+          return null;
+        }
+
+        return {
+          ...egg,
+          ...definition,
+        } as Egg;
+      }).filter((egg): egg is Egg => egg !== null);
+
+      if (parsed.length !== validEggs.length) {
+        console.log('🧹 Cleaning inventory and removing invalid eggs...');
+        const cleanedRawEggs = validEggs.map((egg) => ({
+          id: egg.id,
+          name: egg.name,
+        }));
+        await AsyncStorage.setItem('inventory', JSON.stringify(cleanedRawEggs));
       }
+
+      setInventoryEggs(validEggs);
+      setSelectedEgg(validEggs.length > 0 ? validEggs[0] : null);
     };
+
     loadInventory();
   }, []);
 
@@ -105,20 +143,26 @@ export default function EggTimerScreen() {
     addCoins(coinsEarned);
 
     if (selectedEgg) {
+      const hatchingEgg = { ...selectedEgg };
+      setHatchedEgg(hatchingEgg);
+
       setUnlockedMons([...unlockedMons, selectedEgg.id]);
 
-      const updatedInventory = inventoryEggs.filter((egg) => egg.id !== selectedEgg.id);
+      const updatedInventory = inventoryEggs.filter((egg) => egg.id !== hatchingEgg.id);
       setInventoryEggs(updatedInventory);
       await AsyncStorage.setItem('inventory', JSON.stringify(updatedInventory));
 
-      setSelectedEgg(updatedInventory.length > 0 ? updatedInventory[0] : null);
+      setUnlockedMons(prev => [...prev, hatchingEgg.id]);
+      setInventoryEggs(updatedInventory);
+
+      setEggHatched(true);
 
       Alert.alert(
         'Egg Hatched!',
         `You earned ${coinsEarned} coins and unlocked ${selectedEgg.id.replace('-egg', '')}!`,
         [
           { text: 'See Moncyclopedia', onPress: () => router.push('/moncyclopedia') },
-          { text: 'Stay Here', style: 'cancel' },
+          { text: 'Stay Here', style: 'cancel' , onPress: () => {}, },
         ]
       );
     } else {
@@ -138,9 +182,15 @@ export default function EggTimerScreen() {
 
   const progress = 1 - secondsLeft / dailyGoalSeconds;
 
-  const getEggImage = () => {
-    if (!selectedEgg) return null;
-    if (eggHatched) return selectedEgg.hatched;
+  const getEggImage = (): ImageSourcePropType => {
+    if (!selectedEgg) {
+      return require('@/assets/images/eggs/eu-egg-stage-1.gif');
+    }
+
+    if (eggHatched && hatchedEgg) {
+      return hatchedEgg.hatched;
+    }
+
     if (progress < 0.33) return selectedEgg.stage1;
     if (progress < 0.66) return selectedEgg.stage2;
     return selectedEgg.stage3;
@@ -150,6 +200,7 @@ export default function EggTimerScreen() {
     setSecondsLeft(dailyGoalSeconds);
     setRunning(false);
     setEggHatched(false);
+    setHatchedEgg(null);
     await AsyncStorage.removeItem('eggTimerEnd');
   };
 
@@ -184,8 +235,13 @@ export default function EggTimerScreen() {
           </ThemedText>
         </TouchableOpacity>
 
-        {selectedEgg && (
-          <Image source={getEggImage()} style={styles.eggImage} resizeMode="contain" />
+        {selectedEgg && getEggImage() && (
+          <Image
+            source={getEggImage()}
+            style={styles.eggImage}
+            resizeMode="contain"
+            key={eggHatched && hatchedEgg ? hatchedEgg.id : selectedEgg?.id || 'default'}
+          />
         )}
 
         <ThemedText style={styles.timerText}>{formatTime(secondsLeft)}</ThemedText>
@@ -218,9 +274,12 @@ export default function EggTimerScreen() {
                   <Pressable
                     key={egg.id}
                     onPress={() => {
-                      setSelectedEgg(egg);
-                      setEggPickerVisible(false);
-                      resetTimer();
+                      const fullEgg = inventoryEggs.find(e => e.id === egg.id);
+                      if (fullEgg) {
+                        setSelectedEgg(fullEgg);
+                        resetTimer();
+                        setEggPickerVisible(false);
+                      }
                     }}
                     style={styles.eggOption}
                   >

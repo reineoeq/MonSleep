@@ -10,7 +10,7 @@ const monList = [
     name: 'Tripole',
     description: 'A shy tadpole Mon with three big eyes.',
     image: require('../assets/images/mons/tripole.png'),
-    unlocked: true,
+    unlocked: false,
   },
   {
     id: 'trifin',
@@ -24,7 +24,7 @@ const monList = [
     name: 'Orangeer',
     description: 'A friendly deer-like creature.',
     image: require('../assets/images/mons/orangeer.png'),
-    unlocked: true,
+    unlocked: false,
   },
   {
     id: 'orangorn',

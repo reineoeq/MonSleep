@@ -1,0 +1,173 @@
+export type Egg = {
+  id: string;
+  name: string;
+  stage1: any;
+  stage2: any;
+  stage3: any;
+  hatched: any;
+};
+
+export const eggDefinitions: Record<string, Egg> = {
+  'tripole-egg': {
+    id: 'tripole-egg',
+    name: 'Tripole Egg',
+    stage1: require('@/assets/images/eggs/tripole-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/tripole-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/tripole-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/tripole.png'),
+  },
+  'orangeer-egg': {
+    id: 'orangeer-egg',
+    name: 'Orangeer Egg',
+    stage1: require('@/assets/images/eggs/orangeer-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/orangeer-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/orangeer-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/orangeer.png'),
+  }, 
+  'pinkhorn-egg': {
+    id: 'pinkhorn-egg',
+    name: 'Pinkhorn Egg',
+    stage1: require('@/assets/images/eggs/pinkhorn-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/pinkhorn-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/pinkhorn-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/pinkhorn.png'),
+  },   
+  'blople-egg': {
+    id: 'blople-egg',
+    name: 'Blople Egg',
+    stage1: require('@/assets/images/eggs/blople-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/blople-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/blople-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/blople.png'),
+  },  
+  'cloudie-egg': {
+    id: 'cloudie-egg',
+    name: 'Cloudie Egg',
+    stage1: require('@/assets/images/eggs/cloudie-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/cloudie-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/cloudie-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/cloudie.png'),
+  },
+  'mikue-egg': {
+    id: 'mikue-egg',
+    name: 'Mikue Egg',
+    stage1: require('@/assets/images/eggs/mikue-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/mikue-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/mikue-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/mikue.png'),
+  },
+  'peinto-egg': {
+    id: 'peinto-egg',
+    name: 'Peinto Egg',
+    stage1: require('@/assets/images/eggs/peinto-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/peinto-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/peinto-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/peinto.png'),
+  },
+  'snailie-egg': {
+    id: 'snailie-egg',
+    name: 'Snailie Egg',
+    stage1: require('@/assets/images/eggs/snailie-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/snailie-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/snailie-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/snailie.png'),
+  },
+  'starie-egg': {
+    id: 'starie-egg',
+    name: 'Starie Egg',
+    stage1: require('@/assets/images/eggs/starie-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/starie-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/starie-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/starie.png'),
+  },
+  'quadsun-egg': {
+    id: 'quadsun-egg',
+    name: 'Quadsun Egg',
+    stage1: require('@/assets/images/eggs/quadsun-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/quadsun-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/quadsun-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/quadsun.png'),
+  },
+  'piscibes-egg': {
+    id: 'piscibes-egg',
+    name: 'Piscibes Egg',
+    stage1: require('@/assets/images/eggs/piscibes-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/piscibes-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/piscibes-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/piscibes.png'),
+  },
+  'shroomie-egg': {
+    id: 'shroomie-egg',
+    name: 'Shroomie Egg',
+    stage1: require('@/assets/images/eggs/shroomie-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/shroomie-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/shroomie-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/shroomie.png'),
+  },
+  'cattus-egg': {
+    id: 'cattus-egg',
+    name: 'Cattus Egg',
+    stage1: require('@/assets/images/eggs/cattus-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/cattus-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/cattus-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/cattus.png'),
+  },
+  'pavo-egg': {
+    id: 'pavo-egg',
+    name: 'Pavo Egg',
+    stage1: require('@/assets/images/eggs/pavo-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/pavo-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/pavo-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/pavo.png'),
+  },
+  'axel-egg': {
+    id: 'axel-egg',
+    name: 'Axel Egg',
+    stage1: require('@/assets/images/eggs/axel-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/axel-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/axel-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/axel.png'),
+  },
+  'froggie-egg': {
+    id: 'froggie-egg',
+    name: 'Froggie Egg',
+    stage1: require('@/assets/images/eggs/froggie-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/froggie-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/froggie-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/froggie.png'),
+  },
+  'dimidium-egg': {
+    id: 'dimidium-egg',
+    name: 'Dimidium Egg',
+    stage1: require('@/assets/images/eggs/dimidium-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/dimidium-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/dimidium-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/dimidium.png'),
+  },
+  'amoebus-egg': {
+    id: 'amoebus-egg',
+    name: 'Amoebus Egg',
+    stage1: require('@/assets/images/eggs/amoebus-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/amoebus-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/amoebus-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/amoebus.png'),
+  },
+  'clavicorn-egg': {
+    id: 'clavicorn-egg',
+    name: 'Clavicorn Egg',
+    stage1: require('@/assets/images/eggs/clavicorn-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/clavicorn-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/clavicorn-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/clavicorn.png'),
+  },
+  'eu-egg': {
+    id: 'eu-egg',
+    name: 'Eu Egg',
+    stage1: require('@/assets/images/eggs/eu-egg-stage-1.gif'),
+    stage2: require('@/assets/images/eggs/eu-egg-stage-2.gif'),
+    stage3: require('@/assets/images/eggs/eu-egg-stage-3.gif'),
+    hatched: require('@/assets/images/mons/eu.png'),
+  },
+};
+
+export default eggDefinitions;
