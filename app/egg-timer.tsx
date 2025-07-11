@@ -146,7 +146,14 @@ export default function EggTimerScreen() {
       const hatchingEgg = { ...selectedEgg };
       setHatchedEgg(hatchingEgg);
 
-      setUnlockedMons([...unlockedMons, selectedEgg.id]);
+      const monId = selectedEgg.id.replace('-egg', '');
+      const existingUnlocked = await AsyncStorage.getItem('unlockedMons');
+      const unlockedArray = existingUnlocked ? JSON.parse(existingUnlocked) : [];
+
+      if (!unlockedArray.includes(monId)) {
+        unlockedArray.push(monId);
+        await AsyncStorage.setItem('unlockedMons', JSON.stringify(unlockedArray));
+      }
 
       const updatedInventory = inventoryEggs.filter((egg) => egg.id !== hatchingEgg.id);
       setInventoryEggs(updatedInventory);

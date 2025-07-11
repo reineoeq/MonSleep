@@ -1,7 +1,8 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Stack } from 'expo-router';
-import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Stack, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { Dimensions, FlatList, Image, StyleSheet, View } from 'react-native';
 
 const monList = [
@@ -288,8 +289,27 @@ const monList = [
 ];
 
 export default function MoncyclopediaScreen() {
+  const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
+
+  const loadUnlocked = useCallback(async () => {
+    const stored = await AsyncStorage.getItem('unlockedMons');
+    const parsed = stored ? JSON.parse(stored) : [];
+    setUnlockedIds(parsed);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadUnlocked();
+    }, [loadUnlocked])
+  );
+
+  const updatedMonList = monList.map((mon) => ({
+    ...mon,
+    unlocked: unlockedIds.includes(mon.id),
+  }));
+
   const totalMons = monList.length;
-  const unlockedMons = monList.filter((mon) => mon.unlocked).length;
+  const unlockedMons = updatedMonList.filter((mon) => mon.unlocked).length;
 
   return (
     <ThemedView style={styles.container}>
@@ -299,7 +319,7 @@ export default function MoncyclopediaScreen() {
       </ThemedText>
 
       <FlatList
-        data={monList}
+        data={updatedMonList}
         numColumns={2}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.grid}
@@ -320,7 +340,6 @@ export default function MoncyclopediaScreen() {
     </ThemedView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
