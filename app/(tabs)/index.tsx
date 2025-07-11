@@ -2,99 +2,27 @@ import { useCoinContext } from '@/app/CoinContext';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+
 
 export default function HomeScreen() {
   
   /* Default coins */
-  const { coins, setCoins } = useCoinContext();
+  const { coins, refreshCoins } = useCoinContext();
+  
+  useFocusEffect(
+    useCallback(() => {
+      refreshCoins();
+    }, [])
+  );
   
   /* Default daily goal */
-  // Daily goal state
-  // const [goalTime, setGoalTime] = useState('7:00');
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [selectedHours, setSelectedHours] = useState('7');
-  // const [selectedMinutes, setSelectedMinutes] = useState('00');
-  // const [initialLoad, setInitialLoad] = useState(true);
-
-  // // Available time options
-  // const hours = Array.from({length: 20}, (_, i) => i + 4); // 4-23 hours
-  // const minutes = ['00', '15', '30', '45'];
-
-  // // Load user data on mount
-  // useEffect(() => {
-  //   const loadUserData = async () => {
-  //     try {
-  //       const userId = auth.currentUser?.uid;
-  //       if (userId) {
-  //         const user = await getUserData(userId);
-  //         if (user) {
-  //           // Convert seconds to HH:MM format
-  //           const hours = Math.floor(user.dailyGoal / 3600);
-  //           const minutes = Math.floor((user.dailyGoal % 3600) / 60);
-  //           const formattedTime = `${hours}:${minutes.toString().padStart(2, '0')}`;
-            
-  //           setGoalTime(formattedTime);
-  //           setSelectedHours(hours.toString());
-  //           setSelectedMinutes(minutes.toString().padStart(2, '0'));
-  //           setCoins(user.coins);
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.error('Error loading user data:', error);
-  //       Alert.alert('Error', 'Failed to load your data');
-  //     } finally {
-  //       setInitialLoad(false);
-  //     }
-  //   };
-
-  //   loadUserData();
-  // }, []);
-
-  // const isValidTime = (time: string) => {
-  //   const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
-  //   if (!timeRegex.test(time)) return false;
-  //   const [hours] = time.split(':').map(Number);
-  //   return hours >= 4;
-  // };
-
-  // const handleSave = async () => {
-  //   const newTime = `${selectedHours}:${selectedMinutes}`;
-    
-  //   if (isValidTime(newTime)) {
-  //     try {
-  //       const userId = auth.currentUser?.uid;
-  //       if (userId) {
-  //         // Convert to seconds
-  //         const hours = parseInt(selectedHours);
-  //         const mins = parseInt(selectedMinutes);
-  //         const totalSeconds = (hours * 3600) + (mins * 60);
-          
-  //         await updateDailyGoal(userId, totalSeconds);
-  //         setGoalTime(newTime);
-  //         setIsEditing(false);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error saving daily goal:', error);
-  //       Alert.alert('Error', 'Failed to save your goal');
-  //     }
-  //   } else {
-  //     Alert.alert('Invalid Time', 'Please enter a valid time (HH:MM format, minimum 4 hours)');
-  //   }
-  // };
-
-  // if (initialLoad) {
-  //   return (
-  //     <ThemedView style={styles.loadingContainer}>
-  //       <ThemedText>Loading your data...</ThemedText>
-  //     </ThemedView>
-  //   );
-  // }
-
   const [goalTime, setGoalTime] = useState('7:00');
   const [isEditing, setIsEditing] = useState(false);
   const [inputTime, setInputTime] = useState(goalTime);
@@ -107,40 +35,28 @@ export default function HomeScreen() {
   return hours >= 4; //Time must be at least 4 hours.
   };
 
-  const hours = Array.from({length: 20}, (_, i) => i + 4); // 4-23 hours
-  const minutes = ['00', '15', '30', '45'];
+  const hours = Array.from({length: 20}, (_, i) => i + 0); // 4-23 hours
+  const minutes = ['00' ,'01', '15', '30', '45'];
   
   const [selectedHours, setSelectedHours] = useState('7');
   const [selectedMinutes, setSelectedMinutes] = useState('00');
 
-  const handleSave = () => {
-    const newTime = `${selectedHours}:${selectedMinutes}`;
-    setGoalTime(newTime);
-    setIsEditing(false);
-  };
-  // const handleSave = async () => {
-  //   const newTime = `${selectedHours}:${selectedMinutes}`;
-    
-  //   if (isValidTime(newTime)) {
-  //     try {
-  //       const userId = auth.currentUser?.uid;
-  //       if (userId) {
-  //         const hours = parseInt(selectedHours);
-  //         const mins = parseInt(selectedMinutes);
-  //         const totalSeconds = (hours * 3600) + (mins * 60);
-          
-  //         await updateDailyGoal(userId, totalSeconds);
-  //         setGoalTime(newTime);
-  //         setIsEditing(false);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error saving daily goal:', error);
-  //       Alert.alert('Error', 'Failed to save your goal');
-  //     }
-  //   } else {
-  //     Alert.alert('Invalid Time', 'Please enter a valid time (HH:MM format, minimum 4 hours)');
-  //   }
-  // };
+  const handleSave = async () => {
+  const newTime = `${selectedHours}:${selectedMinutes}`;
+  setGoalTime(newTime);
+  setIsEditing(false);
+
+  const hours = parseInt(selectedHours);
+  const minutes = parseInt(selectedMinutes);
+  const totalSeconds = hours * 3600 + minutes * 60;
+
+  try {
+    await AsyncStorage.setItem('dailyGoalSeconds', totalSeconds.toString());
+    console.log('Saved dailyGoalSeconds to AsyncStorage:', totalSeconds);
+  } catch (e) {
+    console.error('Failed to save goal time:', e);
+  }
+};
 
   const router = useRouter();
 
@@ -162,7 +78,7 @@ export default function HomeScreen() {
       {/* Daily goal */}
       <ThemedView style={styles.card}>
         <View style={styles.goalHeader}>
-          <ThemedText type="title">Daily goal</ThemedText>
+          <ThemedText type="title">Daily goal (HH:MM)</ThemedText>
           <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
             <Ionicons name="pencil" size={20} color="black" />
           </TouchableOpacity>

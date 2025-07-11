@@ -1,8 +1,10 @@
+import { useCoinContext } from '@/app/CoinContext';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 type ShopItem = {
@@ -166,7 +168,13 @@ const EGG_POOL: Record<string, ShopItem[]> = {
 
 export default function MonShop() {
   const router = useRouter();
-  const [coins, setCoins] = useState(10000); 
+  const { coins, setCoins, refreshCoins } = useCoinContext();
+  useFocusEffect(
+    useCallback(() => {
+      refreshCoins();
+    }, [])
+  );
+
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const [inventory, setInventory] = useState<ShopItem[]>([]);
 
