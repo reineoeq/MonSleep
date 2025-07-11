@@ -1,11 +1,13 @@
 import { useCoinContext } from '@/app/CoinContext';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+
 
 type ShopItem = {
   id: string;
@@ -218,26 +220,39 @@ export default function MonShop() {
   }, []);
 
   //handle purchase
-  const handlePurchase = (shopItem: ShopItem) => {
-  const rarity = shopItem.name.toLowerCase().replace(' egg', '');
-  const pool = EGG_POOL[rarity];
-  const ownedIds = inventory.map((item) => item.id);
-  const unownedEggs = pool.filter((egg) => !ownedIds.includes(egg.id));
+  const handlePurchase = async (shopItem: ShopItem) => {
+    const rarity = shopItem.name.toLowerCase().replace(' egg', '');
+    const pool = EGG_POOL[rarity];
+    const ownedIds = inventory.map((item) => item.id);
+    const unownedEggs = pool.filter((egg) => !ownedIds.includes(egg.id));
 
-  if (unownedEggs.length === 0) {
-    alert(`You already own all ${rarity} eggs!`);
-    return;
-  }
-  const randomEgg = unownedEggs[Math.floor(Math.random() * unownedEggs.length)];
+    if (unownedEggs.length === 0) {
+      alert(`You already own all ${rarity} eggs!`);
+      return;
+    }
 
-  if (coins >= shopItem.price) {
-    setCoins(coins - shopItem.price);
-    setInventory(prev => [...prev, randomEgg]);
-    alert(`🎉 You got a ${randomEgg.name}!`);
-  } else {
-    alert("Not enough coins!");
-  }
-};
+    const randomEgg = unownedEggs[Math.floor(Math.random() * unownedEggs.length)];
+
+    if (coins >= shopItem.price) {
+      const updatedCoins = coins - shopItem.price;
+      setCoins(updatedCoins);
+
+      const newInventory = [...inventory, randomEgg];
+      setInventory(newInventory);
+
+      try {
+        await AsyncStorage.setItem('inventory', JSON.stringify(newInventory));
+      } catch (e) {
+        console.error('Failed to save inventory:', e);
+        alert("Something went wrong saving your egg.");
+        return;
+      }
+
+      alert(`🎉 You got a ${randomEgg.name}!`);
+    } else {
+      alert("Not enough coins!");
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
