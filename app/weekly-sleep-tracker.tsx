@@ -25,8 +25,8 @@ const WeeklySleepTracker = () => {
 
   const canEvolve = progress === 7;
   const imageSource = hasEvolved
-    ? require('../assets/images/trifin.png')
-    : require('../assets/images/tripole.png');
+    ? require('../assets/images/mons/trifin.png')
+    : require('../assets/images/mons/tripole.png');
 
   const handleEvolve = () => {
     if (canEvolve) {
