@@ -68,8 +68,7 @@ const WeeklySleepTracker = () => {
         if (found) {
           setSelectedMon(found);
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     loadUnlockedMons();
@@ -87,7 +86,7 @@ const WeeklySleepTracker = () => {
     ? hasEvolved && evolvedMon
       ? evolvedMon.image
       : selectedMon.image
-    : require('../assets/images/mons/axol.png');
+    : require('../assets/images/mons/questionmark.png');
 
   const handleEvolve = () => {
     if (canEvolve) {

@@ -1,4 +1,4 @@
-package com.anonymous.mymonsleepapp
+package com.roeq.mymonsleepapp
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

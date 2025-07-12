@@ -1,4 +1,4 @@
-package com.anonymous.mymonsleepapp
+package com.roeq.mymonsleepapp
 
 import android.app.Application
 import android.content.res.Configuration

@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.mymonsleepapp'
+    namespace 'com.roeq.mymonsleepapp'
     defaultConfig {
-        applicationId 'com.anonymous.mymonsleepapp'
+        applicationId 'com.roeq.mymonsleepapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
