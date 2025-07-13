@@ -161,7 +161,6 @@ export default function HomeScreen() {
       <ThemedView style={styles.card}>
         <ThemedView style={styles.monsHeader}>
           <ThemedText type="title">My Mons</ThemedText>
-          <ThemedText type="title">→</ThemedText>
         </ThemedView>
         <ThemedView style={styles.trackerRow}>
           <Pressable onPress={() => router.push('/egg-timer')}>
@@ -275,18 +274,19 @@ const styles = StyleSheet.create({
   chart: {
     width: 130,
     height: 150,
+    left: 10,
   },
   week: {
-    left: -100,
+    left: -90,
     top: 120,
   },
   calendar: {
     width: 160,
     height: 150,
-    left: -30,
+    left: -10,
   },
   month: {
-    left: -160,
+    left: -137,
     top: 120,
   },
   monsHeader: {
@@ -300,23 +300,23 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   eggGif: {
-    height: 200,
+    height: 170,
     width: 100,
-    top: -60,
-    left: 20,
+    top: -40,
+    left: 30,
   },
   monBook: {
     height: 150,
     width: 100,
     top: -20,
-    left: -35,
+    left: -15,
   },
   monEggText: {
     top: 110,
-    left: -100,
+    left: -90,
   },
   monBookText: {
     top: 110,
-    left: -135,
+    left: -115,
   }
 });
