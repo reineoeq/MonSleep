@@ -139,6 +139,13 @@ export default function EggTimerScreen() {
     setEggHatched(true);
     await AsyncStorage.removeItem('eggTimerEnd');
 
+    const today = new Date();
+    const dayOfWeek = today.toLocaleDateString('en-US', { weekday: 'short' }); 
+    const dateKey = today.toISOString().split('T')[0]; 
+
+    await AsyncStorage.setItem(`sleepRecord-${dayOfWeek}`, 'success');
+    await AsyncStorage.setItem(`sleepRecord-${dateKey}`, 'success');
+
     const coinsEarned = 10;
     addCoins(coinsEarned);
 

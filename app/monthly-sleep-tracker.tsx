@@ -1,31 +1,62 @@
 import { ThemedText } from '@/components/ThemedText';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import dayjs from 'dayjs';
 import { Stack } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-// Define the type for each day's data
-interface SleepDay {
-  date: number;
-  hours: number;
-  metGoal: boolean;
-}
-
-const daysInMonth = 30; // Example month size
-const dailyGoal = 7; // 7 hours sleep goal
-
-const sleepData: SleepDay[] = Array.from({ length: daysInMonth }, (_, i) => {
-  const randomHours = Math.round(Math.random() * 10);
-  return {
-    date: i + 1,
-    hours: randomHours,
-    metGoal: randomHours >= dailyGoal,
-  };
-});
-
+const daysInMonth = dayjs().daysInMonth();
 const numCols = 7;
 const numRows = Math.ceil(daysInMonth / numCols);
 
+interface SleepDay {
+  date: number;
+  status: 'success' | 'fail' | 'none';
+}
+
 const MonthlySleepTracker = () => {
+  const [sleepData, setSleepData] = useState<SleepDay[]>([]);
+
+  useEffect(() => {
+    const loadSleepData = async () => {
+      const today = dayjs();
+      const currentMonth = today.format('YYYY-MM');
+      const data: SleepDay[] = [];
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = `${currentMonth}-${String(day).padStart(2, '0')}`; // e.g., 2025-07-01
+        const record = await AsyncStorage.getItem(`sleepRecord-${dateKey}`);
+
+        data.push({
+          date: day,
+          status: record === 'success' ? 'success' : record === 'fail' ? 'fail' : 'none',
+        });
+      }
+
+      setSleepData(data);
+    };
+
+    loadSleepData();
+  }, []);
+
+  useEffect(() => {
+    const autoResetIfNewMonth = async () => {
+      const lastMonth = await AsyncStorage.getItem('lastMonth');
+      const currentMonth = dayjs().format('YYYY-MM');
+
+      if (lastMonth !== currentMonth) {
+        await AsyncStorage.setItem('lastMonth', currentMonth);
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateKey = `${currentMonth}-${String(day).padStart(2, '0')}`;
+          await AsyncStorage.removeItem(`sleepRecord-${dateKey}`);
+        }
+      }
+    };
+
+    autoResetIfNewMonth();
+  }, []);
+
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: 'Monthly Sleep Tracker' }} />
@@ -34,15 +65,28 @@ const MonthlySleepTracker = () => {
       <View style={styles.calendarWrapper}>
         {Array.from({ length: numRows }).map((_, rowIndex) => (
           <View style={styles.row} key={rowIndex}>
-            {sleepData.slice(rowIndex * numCols, (rowIndex + 1) * numCols).map((entry, i) => (
-              <View style={styles.dayCell} key={i}>
-                <ThemedText style={styles.date}>{entry.date}</ThemedText>
-                <ThemedText style={styles.hours}>{entry.hours}h</ThemedText>
-                <ThemedText style={entry.metGoal ? styles.success : styles.fail}>
-                  {entry.metGoal ? '✅' : '❌'}
-                </ThemedText>
-              </View>
-            ))}
+            {sleepData
+              .slice(rowIndex * numCols, (rowIndex + 1) * numCols)
+              .map((entry, i) => (
+                <View style={styles.dayCell} key={i}>
+                  <ThemedText style={styles.date}>{entry.date}</ThemedText>
+                  <ThemedText
+                    style={
+                      entry.status === 'success'
+                        ? styles.success
+                        : entry.status === 'fail'
+                        ? styles.fail
+                        : styles.none
+                    }
+                  >
+                    {entry.status === 'success'
+                      ? '✅'
+                      : entry.status === 'fail'
+                      ? '❌'
+                      : '⬜️'}
+                  </ThemedText>
+                </View>
+              ))}
           </View>
         ))}
       </View>
@@ -73,7 +117,7 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: 48,
-    height: 80,
+    height: 64,
     backgroundColor: '#fff',
     borderRadius: 8,
     marginHorizontal: 4,
@@ -82,20 +126,20 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   date: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
-  },
-  hours: {
-    fontSize: 15,
-    marginVertical: 0,
   },
   success: {
     color: 'green',
-    fontSize: 15,
+    fontSize: 18,
   },
   fail: {
     color: 'red',
-    fontSize: 15,
+    fontSize: 18,
+  },
+  none: {
+    color: '#aaa',
+    fontSize: 18,
   },
 });
 

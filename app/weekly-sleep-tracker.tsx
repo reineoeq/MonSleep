@@ -55,26 +55,32 @@ const WeeklySleepTracker = () => {
         const stored = await AsyncStorage.getItem('unlockedMons');
         const unlockedIds = stored ? JSON.parse(stored) : [];
 
-        const unlockedMonsRaw = monList.filter(mon => unlockedIds.includes(mon.id));
-
-        const unlockedBaseMons = unlockedMonsRaw.filter(
-          mon => !mon.description.toLowerCase().includes('evolved form')
+        const baseMons = monList.filter(mon =>
+          unlockedIds.includes(mon.id) &&
+          !mon.description.toLowerCase().includes('evolved form')
         );
 
-        setUnlockedMons(unlockedBaseMons);
+        const evolvableBaseMons = baseMons.filter(baseMon => {
+          const evolved = monList.find(m =>
+            m.description.startsWith(`${baseMon.name}’s evolved form`)
+          );
+          return evolved ? !unlockedIds.includes(evolved.id) : true;
+        });
+
+        setUnlockedMons(evolvableBaseMons);
 
         const selected = await AsyncStorage.getItem('selectedMonToEvolve');
         const found = monList.find((m) => m.id === selected);
         if (found) {
           setSelectedMon(found);
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error('❌ Failed to load unlocked mons:', error);
+      }
     };
 
     loadUnlockedMons();
   }, []);
-
-
 
   const evolvedMon = selectedMon
     ? monList.find((mon) =>
@@ -88,11 +94,43 @@ const WeeklySleepTracker = () => {
       : selectedMon.image
     : require('../assets/images/mons/questionmark.png');
 
-  const handleEvolve = () => {
-    if (canEvolve) {
-      setHasEvolved(true);
+  const handleEvolve = async () => {
+    if (!canEvolve || !selectedMon || hasEvolved) return;
+
+    setHasEvolved(true);
+
+    const evolvedMon = monList.find((mon) =>
+      mon.description.startsWith(`${selectedMon.name}’s evolved form`)
+    );
+
+    if (evolvedMon) {
+      try {
+        const stored = await AsyncStorage.getItem('unlockedMons');
+        const unlockedIds: string[] = stored ? JSON.parse(stored) : [];
+
+        const updatedSet = new Set(unlockedIds);
+        updatedSet.add(evolvedMon.id);
+
+        const updatedList = Array.from(updatedSet);
+        await AsyncStorage.setItem('unlockedMons', JSON.stringify(updatedList));
+
+        setUnlockedMons(
+          monList.filter(mon =>
+            updatedList.includes(mon.id) &&
+            !mon.description.toLowerCase().includes('evolved form')
+          )
+        );
+
+        setSelectedMon(null);
+        await AsyncStorage.removeItem('selectedMonToEvolve');
+
+        console.log(`✅ ${selectedMon.name} evolved into ${evolvedMon.name}`);
+      } catch (err) {
+        console.error('❌ Failed to update unlocked mons after evolution:', err);
+      }
     }
   };
+
 
   function getCurrentWeekKey() {
     const now = new Date();
@@ -117,6 +155,30 @@ const WeeklySleepTracker = () => {
 
     autoResetIfNewWeek();
   }, []);
+
+  /** for testing */
+  // useEffect(() => {
+  //   const seedTestData = async () => {
+  //     await AsyncStorage.setItem('lastWeek', '2025-W01'); //test if week resets
+  //     await AsyncStorage.setItem('sleepRecord-Mon', 'success');
+  //     await AsyncStorage.setItem('sleepRecord-Tue', 'success');
+  //     await AsyncStorage.setItem('sleepRecord-Wed', 'success');
+  //     await AsyncStorage.setItem('sleepRecord-Thu', 'success');
+  //     await AsyncStorage.setItem('sleepRecord-Fri', 'success');
+  //     await AsyncStorage.setItem('sleepRecord-Sat', 'success');
+  //     await AsyncStorage.setItem('sleepRecord-Sun', 'success');
+  //   };
+  //   seedTestData();
+  // }, []);
+
+  // useEffect(() => {
+  //   const clearOldWeeklyTestData = async () => {
+  //     for (const day of daysOfWeek) {
+  //       await AsyncStorage.removeItem(`sleepRecord-${day}`);
+  //     }
+  //   };
+  //   clearOldWeeklyTestData();
+  // }, []);
 
   return (
     <View style={styles.container}>
