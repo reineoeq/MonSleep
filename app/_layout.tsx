@@ -28,6 +28,7 @@
 
 import CoinProvider from '@/app/CoinContext';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import 'abort-controller/polyfill';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

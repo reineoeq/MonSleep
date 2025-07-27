@@ -35,7 +35,7 @@ export default function HomeScreen() {
   return hours >= 4; //Time must be at least 4 hours.
   };
 
-  const hours = Array.from({length: 20}, (_, i) => i + 0); // 4-23 hours
+  const hours = ['0', ...Array.from({ length: 20 }, (_, i) => String(i + 4))];
   const minutes = ['00' ,'01', '15', '30', '45'];
   
   const [selectedHours, setSelectedHours] = useState('7');

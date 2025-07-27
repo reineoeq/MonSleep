@@ -24,7 +24,7 @@ const MonthlySleepTracker = () => {
       const data: SleepDay[] = [];
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${currentMonth}-${String(day).padStart(2, '0')}`; // e.g., 2025-07-01
+        const dateKey = `${currentMonth}-${String(day).padStart(2, '0')}`; 
         const record = await AsyncStorage.getItem(`sleepRecord-${dateKey}`);
 
         data.push({
