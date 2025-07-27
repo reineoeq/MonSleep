@@ -45,13 +45,13 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color} />,
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="settings"
           options={{
             title: 'Settings',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color}/>,
           }}
-        />
+        /> */}
       </Tabs>
     </CoinProvider>
   );
